@@ -69,19 +69,10 @@ app.use(nameUserMiddle);
 app.use(serviceMiddle);
 //app.use(checkToken);
 //app.use(passportMiddle);
-// const multer = require('multer')
 
 
-// const storage = multer.diskStorage({
-//     destination: (req, file, callback) => {
-//         callback(null, './source/public/img')
-//     },
-//     filename: (req, file, callback) => {
-//         console.log(file)
-//         callback(null, Date.now() + path.extname(file.originalname))
-//     }
-// })
-// const upload = multer({ storage: storage })
+
+
 
 
 route(app);

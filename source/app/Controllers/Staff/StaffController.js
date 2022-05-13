@@ -128,14 +128,14 @@ class StaffController {
     }
 
     async deleteService(req, res) {
-        const id = req.body.idService;
-        let getPathImg = await sequelize.query(`select PathImg FROM Service WHERE IDService = ${id} `);
-        let fileImgOld = getPathImg[0][0].PathImg.split('/');
-        let filePathImgOld = path.join(__dirname, `../../../public/img/${fileImgOld[4]}`);
-        fs.unlink(filePathImgOld, (err) => err);
-        let deleteStaff_Service = await sequelize.query(`delete Staff_Service WHERE IDService = ${id}`)
-        let updateAmountOld = await sequelize.query(`update TypeService SET AmountService-=1 WHERE IDTypeS = (SELECT TypeService FROM Service WHERE IDService = ${id})`);
-        let deleteService = await sequelize.query(`delete service where IDService = ${id}`)
+        // const id = req.body.idService;
+        // let getPathImg = await sequelize.query(`select PathImg FROM Service WHERE IDService = ${id} `);
+        // let fileImgOld = getPathImg[0][0].PathImg.split('/');
+        // let filePathImgOld = path.join(__dirname, `../../../public/img/${fileImgOld[4]}`);
+        // fs.unlink(filePathImgOld, (err) => err);
+        // let deleteStaff_Service = await sequelize.query(`delete Staff_Service WHERE IDService = ${id}`)
+        // let updateAmountOld = await sequelize.query(`update TypeService SET AmountService-=1 WHERE IDTypeS = (SELECT TypeService FROM Service WHERE IDService = ${id})`);
+        // let deleteService = await sequelize.query(`delete service where IDService = ${id}`)
         return res.status(200).json({
             status: 'success',
         })
@@ -146,6 +146,20 @@ class StaffController {
             status: 'success',
             info: info[0],
         })
+    }
+    async employee(req, res) {
+        let employee = await sequelize.query(`select * from Staff`)
+        let store = await sequelize.query(`select * from Store`)
+        let managers = await sequelize.query(`select * from Staff where IDManager = IDStaff`)
+        let services = await sequelize.query(`select * from Service`)
+        var lengthEmployee = employee[0].length
+        res.render('staff/employee', {
+            employee: employee[0],
+            lengthEmployee,
+            store: store[0],
+            managers: managers[0],
+            services: services[0],
+        });
     }
 
 }

@@ -182,6 +182,15 @@ p {
     content: "";
 }
 
+.flex {
+    display: flex;
+    flex: 1;
+}
+
+.flex-grow {
+    flex-grow: 1;
+}
+
 .el-row::after {
     display: table;
     content: "";
@@ -206,6 +215,10 @@ p {
 
 .el-col-sm-17 {
     width: 70.83333%;
+}
+
+.el-col-sm-12 {
+    width: 50%;
 }
 
 .el-col {
@@ -503,6 +516,16 @@ p {
     width: 100%;
 }
 
+.el-input--medium {
+    font-size: 14px;
+}
+
+.adm-input-wrapper .adm-input.is-icon-end,
+.adm-input-wrapper .adm-input.is-icon-start {
+    align-items: center;
+    display: flex;
+}
+
 .el-select>.el-input {
     display: block;
 }
@@ -747,6 +770,51 @@ p {
     padding: 8px;
 }
 
+.avatar-uploader .el-upload .el-upload-dragger {
+    align-items: center;
+    border-radius: 50%;
+    display: flex;
+    flex-shrink: 0;
+    height: 200px;
+    justify-content: center;
+    width: 200px;
+}
+
+.avatar-uploader__trash {
+    cursor: pointer;
+    position: absolute;
+    right: 0;
+    top: 0.25rem;
+    z-index: 1;
+    display: none;
+}
+
+.avatar-uploader__trash path {
+    fill: #99a1b1;
+}
+
+.avatar-uploader__trash:hover path {
+    fill: #f273a0;
+}
+
+.el-upload-dragger .el-icon-upload {
+    color: #c0c4cc;
+    font-size: 67px;
+    line-height: 50px;
+    margin: 40px 0 16px;
+}
+
+.avatar-uploader .el-upload .el-upload-dragger .el-icon-upload {
+    margin: 0px;
+}
+
+.el-upload-dragger .el-icon-upload {
+    color: #c0c4cc;
+    font-size: 67px;
+    line-height: 50px;
+    margin: 40px 0 16px;
+}
+
 .adm-square-uploader__image>div {
     height: 100%;
 }
@@ -940,6 +1008,11 @@ p {
     padding: 4px 8px;
 }
 
+.adm-select-option:hover,
+.time-select-item:hover {
+    background-color: #f4f6fa;
+}
+
 .adm-select-option.selected,
 .time-select-item.selected {
     background-color: #f2f6fe;
@@ -964,6 +1037,18 @@ button.adm-button__size__mini {
     padding: 0 8px;
 }
 
+button.adm-button__size__medium {
+    font-size: 14px;
+    height: 42px;
+    line-height: 20px;
+    padding: 0 20px;
+}
+
+button.adm-button__size__medium.is-icon-start .adm-button__icon-wrapper {
+    margin-left: -4px;
+    margin-right: 4px;
+}
+
 button.adm-button__ghost__dark,
 button.adm-button__ghost__red {
     background-color: #fff;
@@ -981,6 +1066,23 @@ button.adm-button__size__mini.is-icon-start .adm-button__icon-wrapper {
     margin-left: -2px;
     margin-right: 4px;
     width: 20px;
+}
+
+button.adm-button .adm-button__icon-wrapper {
+    align-items: center;
+    display: flex;
+    flex-shrink: 0;
+    justify-content: center;
+}
+
+button.adm-button i,
+button.adm-button span {
+    display: inline-block;
+}
+
+button.adm-button__size__medium.is-icon-start .adm-button__icon-wrapper {
+    margin-left: -4px;
+    margin-right: 4px;
 }
 
 button.adm-button__ghost__red i {

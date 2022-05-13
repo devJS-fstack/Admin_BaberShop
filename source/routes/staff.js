@@ -150,6 +150,7 @@ router.post('/service/delete-category', StaffController.deleteCategory)
 router.post('/service/create-category', StaffController.createCategory)
 router.post('/service/employee-service', StaffController.employService)
 router.post('/service/employee-service-id', StaffController.employService_id)
+router.get('/employee', StaffController.employee)
 router.get('/service', StaffController.service)
 router.get('/dashboard-manager', StaffController.dashboard)
 router.post('/login', StaffController.login);
