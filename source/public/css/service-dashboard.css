@@ -177,6 +177,9 @@ p {
 .el-col-sm-17 {
   width: 70.83333%; }
 
+.el-col-sm-25 {
+  width: 25%; }
+
 .el-col-sm-12 {
   width: 50%; }
 
@@ -841,6 +844,9 @@ p {
 .adm-select-option:hover,
 .time-select-item:hover {
   background-color: #f4f6fa; }
+
+.adm-select-option.no-data:hover {
+  background-color: #fff !important; }
 
 .adm-select-option.selected,
 .time-select-item.selected {

@@ -467,6 +467,9 @@
                 listDropdown_employee[index].classList.remove('selected');
                 if (indexFirstChecking == index && countClick > 1) {
                     getIndexIsChecking();
+                    if (indexIsChecking == -1) {
+                        indexIsChecking = indexFirstChecking;
+                    }
                     indexFirstChecking = indexIsChecking;
                     const tagsText = document.querySelector('.el-select__tags-text')
                     tagsText.innerHTML = span_nameEmployee[indexIsChecking].textContent.trim()
@@ -688,10 +691,10 @@
 
     })
 
-    var nameFirstEmployee;
 
     function isCheckEmployee_dd(arrEm) {
         var count = 0;
+        countEmployee = 0;
         listDropdown_employee.forEach((item, index) => {
             arrEm.forEach((item1, index1) => {
                 if (item1.IDStaff == item.getAttribute('data-employee')) {
@@ -718,6 +721,10 @@
                         </span>
                     </span>`
         }
+        getIndexIsChecking();
+        indexFirstChecking = indexIsChecking;
+        indexIsChecking = -1;
+        countClick = 2;
 
     }
 
@@ -817,7 +824,7 @@
             info.forEach((item1, index1) => {
                 list[index].innerHTML += `<span class="list-row">
                 <div class="adm-avatar size-24 mr-2 ml-0"
-                    style="    background-image: url(${item1.PathImgStaff});color: rgb(36, 112, 172);">
+                    style="background-image: url(${item1.PathImgStaff});color: rgb(36, 112, 172);">
                 </div>
                 <span>${item1.NameStaff}</span>
             </span>`

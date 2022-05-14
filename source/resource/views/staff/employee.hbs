@@ -66,8 +66,8 @@
                                 <span class="adm-header__label">Nhân Viên</span>
                             </div>
                             <div class="align-right">
-                                <button data-toggle="modal" data-target="#add-employee_modal"
-                                    class="adm-button adm-button-service">
+                                <button data-toggle="modal" data-target="#add-employee_modal" class="adm-button"
+                                    id="btn-AddEmployee">
                                     <span class="adm-button__icon-wrapper">
                                         <i class="fa-solid fa-plus"></i>
                                     </span>
@@ -191,8 +191,10 @@
                                                                         </span>
                                                                     </button>
                                                                     <ul class="dropdown-menu"
+                                                                        style="left: -50px !important;"
                                                                         aria-labelledby="dropdownMenuButton">
-                                                                        <li class="dropdown-item el-dropdown-menu"
+                                                                        <li data-employee={{this.IDStaff}}
+                                                                            class="dropdown-item el-dropdown-menu edit-employee"
                                                                             data-target="" data-toggle="modal">
                                                                             <div
                                                                                 class="adm-dropdown-item__wrapper is-with-icon">
@@ -205,7 +207,7 @@
                                                                             </div>
                                                                         </li>
                                                                         <li data-toggle="modal" data-target="#"
-                                                                            class=" dropdown-item el-dropdown-menu">
+                                                                            class=" dropdown-item el-dropdown-menu delete-employee">
                                                                             <div
                                                                                 class="adm-dropdown-item__wrapper is-red is-with-icon">
                                                                                 <div class="adm-dropdown-item__icon">
@@ -243,7 +245,7 @@
                 style="margin-top: 70px; width: 1200px ; max-width:1200px">
                 <div class="modal-content">
                     <div class="el-dialog__header">
-                        <span class="adm-modal-title tittle-service">
+                        <span class="adm-modal-title tittle-employee">
                             Tạo Nhân Viên
                         </span>
                         <button id="close-add__employee" type="button" class="close" data-dismiss="modal"
@@ -251,7 +253,7 @@
                             <span aria-hidden="true">&times;</span>
                     </div>
                     <div class="el-dialog__body">
-                        <form class="el-form" id="addEmployeeForm" action="service/add-employee" method="post"
+                        <form class="el-form" id="addEmployeeForm" action="employee/add-employee" method="post"
                             enctype="multipart/form-data">
                             <div class="flex">
                                 <div class="mr-4">
@@ -297,7 +299,7 @@
                                     </div>
                                 </div>
                                 <div class="flex-grow">
-                                    <div class="el-row" style="margin-left: -8px; margin-right: -8px;">
+                                    <div class="el-row" style="margin-left: -8px; margin-right: -8px;height: 116px;">
                                         <div class="el-col el-col-24 el-col-sm-12"
                                             style="padding-left: 8px; padding-right: 8px;">
                                             <div class="adm-form-item">
@@ -311,8 +313,7 @@
                                                                 class="el-input el-input__default adm-input adm-input__size-default">
                                                                 <input id="input-surname-employee__add" type="text"
                                                                     autocomplete="nope" maxlength="50" iconstart iconend
-                                                                    rows="2" name="name_service" tags
-                                                                    class="el-input__inner"
+                                                                    rows="2" name="surname" tags class="el-input__inner"
                                                                     placeholder="Nhập họ của nhân viên">
                                                             </div>
                                                         </div>
@@ -336,7 +337,7 @@
                                                                 class="el-input el-input__default adm-input adm-input__size-default">
                                                                 <input id="input-name-employee__add" type="text"
                                                                     autocomplete="nope" maxlength="50" iconstart iconend
-                                                                    rows="2" name="name_service" tags
+                                                                    rows="2" name="name_employee" tags
                                                                     class="el-input__inner"
                                                                     placeholder="Nhập tên của nhân viên">
                                                             </div>
@@ -349,13 +350,13 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="el-row" style="margin-left: -8px; margin-right: -8px;">
+                                    <div class="el-row" style="margin-left: -8px; margin-right: -8px;height: 116px;">
                                         <div class="el-col el-col-24 el-col-sm-24"
                                             style="padding-left: 8px; padding-right: 8px;">
                                             <div class="adm-form-item">
                                                 <div class="el-form-item is-success is-required">
                                                     <label for="name" class="el-form-item__label">
-                                                        Lựa Chọn Dịch Vụ Cho Phép
+                                                        Chọn Dịch Vụ Cho Phép
                                                     </label>
                                                     <div class="el-form-item__content">
                                                         <div class="adm-select-wrapper">
@@ -378,8 +379,7 @@
                                                                     <input id="input-service_assign__add" type="text"
                                                                         readonly="readonly" autocomplete="off"
                                                                         class="el-input__inner pointer"
-                                                                        placeholder="Chọn Dịch Vụ Cho Phép"
-                                                                        name="service_assign">
+                                                                        placeholder="Chọn Dịch Vụ Cho Phép">
                                                                     <span class="el-input__suffix">
                                                                         <span class="el-input__suffix__inner">
                                                                             <i style="display:flex;align-items: center;justify-content: center;"
@@ -398,7 +398,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="el-row" style="margin-left: -8px; margin-right: -8px;">
+                                    <div class="el-row" style="margin-left: -8px; margin-right: -8px;height: 116px;">
                                         <div class="el-col el-col-24 el-col-sm-12"
                                             style="padding-left: 8px; padding-right: 8px;">
                                             <div class="adm-form-item">
@@ -413,7 +413,7 @@
                                                                 <input id="input-store-employee__add" type="text"
                                                                     readonly="readonly" autocomplete="off"
                                                                     class="el-input__inner pointer"
-                                                                    placeholder="Lựa Chọn Cửa Hàng" name="store_name"
+                                                                    placeholder="Chọn Cửa Hàng" name="store_id"
                                                                     style="text-overflow: ellipsis;padding: 0px 40px 0px 12px;"
                                                                     ;>
                                                                 <span class="el-input__suffix">
@@ -445,7 +445,7 @@
                                                                 <input id="input-manager-employee__add" type="text"
                                                                     readonly="readonly" autocomplete="off"
                                                                     class="el-input__inner pointer"
-                                                                    placeholder="Lựa Chọn Người Quản Lý"
+                                                                    placeholder="Chọn Người Quản Lý"
                                                                     name="manager_name">
                                                                 <span class="el-input__suffix">
                                                                     <span class="el-input__suffix__inner">
@@ -463,8 +463,8 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="el-row" style="margin-left: -8px; margin-right: -8px;">
-                                        <div class="el-col el-col-24 el-col-sm-17"
+                                    <div class="el-row" style="margin-left: -8px; margin-right: -8px;height: 116px;">
+                                        <div class="el-col el-col-24 el-col-sm-12"
                                             style="padding-left: 8px; padding-right: 8px;">
                                             <div class="adm-form-item">
                                                 <div class="el-form-item is-success is-required">
@@ -488,21 +488,21 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="el-col el-col-24 el-col-sm-7"
+                                        <div class="el-col el-col-24 el-col-sm-25"
                                             style="padding-left: 8px; padding-right: 8px;">
                                             <div class="adm-form-item">
                                                 <div class="el-form-item is-success is-required">
                                                     <label for="name" class="el-form-item__label">
-                                                        Giới Tính
+                                                        Loại Nhân Viên
                                                     </label>
                                                     <div class="el-form-item__content">
                                                         <div class="adm-input-wrapper">
                                                             <div
                                                                 class="el-input el-input__default adm-input adm-input__size-default">
-                                                                <input id="input-sex-employee__add" type="text"
+                                                                <input id="input-type-employee__add" type="text"
                                                                     readonly="readonly" autocomplete="off"
                                                                     class="el-input__inner pointer"
-                                                                    placeholder="Lựa Chọn Giới Tính" name="sex">
+                                                                    placeholder="Chọn Loại Nhân Viên" name="type_staff">
                                                                 <span class="el-input__suffix">
                                                                     <span class="el-input__suffix__inner">
                                                                         <i style="display:flex;align-items: center;justify-content: center;"
@@ -518,9 +518,40 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        <div class="el-col el-col-24 el-col-sm-25"
+                                            style="padding-left: 8px; padding-right: 8px;">
+                                            <div class="adm-form-item">
+                                                <div class="el-form-item is-success is-required">
+                                                    <label for="name" class="el-form-item__label">
+                                                        Giới Tính
+                                                    </label>
+                                                    <div class="el-form-item__content">
+                                                        <div class="adm-input-wrapper">
+                                                            <div
+                                                                class="el-input el-input__default adm-input adm-input__size-default">
+                                                                <input id="input-sex-employee__add" type="text"
+                                                                    readonly="readonly" autocomplete="off"
+                                                                    class="el-input__inner pointer"
+                                                                    placeholder="Chọn Giới Tính" name="sex">
+                                                                <span class="el-input__suffix">
+                                                                    <span class="el-input__suffix__inner">
+                                                                        <i style="display:flex;align-items: center;justify-content: center;"
+                                                                            class="fa-solid fa-angle-up el-select__caret el-input__icon"></i>
+                                                                    </span>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="adm-form-item__error">
+                                                            {{!-- Bạn vui lòng nhập tên danh mục --}}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
                                     </div>
 
-                                    <div class="el-row" style="margin-left: -8px; margin-right: -8px;">
+                                    <div class="el-row" style="margin-left: -8px; margin-right: -8px;height: 116px;">
                                         <div class="el-col el-col-24 el-col-sm-12"
                                             style="padding-left: 8px; padding-right: 8px;">
                                             <div class="adm-form-item">
@@ -534,7 +565,7 @@
                                                                 class="el-input el-input__default adm-input adm-input__size-default">
                                                                 <input id="input-email-employee__add" type="text"
                                                                     autocomplete="nope" maxlength="100" iconstart
-                                                                    iconend rows="2" name="name_service" tags
+                                                                    iconend rows="2" name="email" tags
                                                                     class="el-input__inner"
                                                                     placeholder="nhanvien@abcxyz.com">
                                                             </div>
@@ -559,8 +590,8 @@
                                                                 class="el-input el-input__default adm-input adm-input__size-default">
                                                                 <input id="input-phone-employee__add" type="text"
                                                                     autocomplete="nope" maxlength="10" iconstart iconend
-                                                                    rows="2" name="name_service" tags
-                                                                    class="el-input__inner" placeholder="Số Điện Thoại">
+                                                                    rows="2" name="phone" tags class="el-input__inner"
+                                                                    placeholder="Số Điện Thoại">
                                                             </div>
                                                         </div>
                                                         <div class="adm-form-item__error">
@@ -574,16 +605,15 @@
                                 </div>
                             </div>
 
-                            <input type="text" id="arrEmployee" name="arrEmployee" style="display:none">
-                            <input type="text" id="idServiceNew" name="idServiceNew" style="display:none">
+                            <input type="text" id="arrServiceAssign" name="arrServices" style="display:none">
                         </form>
                     </div>
                     <div class="modal-footer" style="justify-content: flex-end !important">
-                        <button id="adm-btn-service__close" data-dismiss="modal"
+                        <button id="adm-btn-employee__close" data-dismiss="modal"
                             class="adm-button adm-button__filled__grey adm-button-size__medium" style="border:none">
                             <span>Đóng</span>
                         </button>
-                        <button id="adm-btn-service__add"
+                        <button id="adm-btn-employee__add"
                             class="adm-button adm-button__filled__blue adm-button-size__medium ml-3"
                             style="border:none">
                             <span>Thêm Nhân Viên</span>
@@ -610,7 +640,6 @@
                             <span>{{this.Street}}</span>
                         </li>
                         {{/each}}
-
                     </ul>
                 </div>
             </div>
@@ -623,27 +652,30 @@
                     style="margin-bottom: -17px; margin-right: -17px;">
                     <ul class="el-scrollbar__view el-select-dropdown__list">
                         {{#each managers}}
-                        <li data-manager={{this.IDStaff}}
+                        <li data-manager={{this.IDStaff}} data-store="{{this.IDStore}}"
                             class="el-select-dropdown__item adm-select-option item-managers__dropdown">
                             <span>{{this.SurName}} {{this.NameStaff}}</span>
                         </li>
                         {{/each}}
-
+                        <li class="el-select-dropdown__item adm-select-option no-data no-data__manager"
+                            style="display:none; justify-content: center;cursor:default">
+                            <span>Không có dữ liệu</span>
+                        </li>
                     </ul>
                 </div>
             </div>
         </div>
         {{!-- Dropdown sex --}}
         <div class="el-select-dropdown el-popper adm-select-popper" id="dropdown-sex__employee"
-            style="min-width: 260px; transform-origin: center bottom; z-index: 2030; display: none;">
+            style="min-width: 220px; transform-origin: center bottom; z-index: 2030; display: none;">
             <div class="el-scrollbar">
                 <div class="el-select-dropdown__wrap el-scrollbar__wrap"
                     style="margin-bottom: -17px; margin-right: -17px;">
                     <ul class="el-scrollbar__view el-select-dropdown__list">
-                        <li data-sex=1 class="el-select-dropdown__item adm-select-option item-sex__dropdown">
+                        <li data-sex="Nam" class="el-select-dropdown__item adm-select-option item-sex__dropdown">
                             <span>Nam</span>
                         </li>
-                        <li data-sex=2 class="el-select-dropdown__item adm-select-option item-sex__dropdown">
+                        <li data-sex="Nữ" class="el-select-dropdown__item adm-select-option item-sex__dropdown">
                             <span>Nữ</span>
                         </li>
                     </ul>
@@ -662,6 +694,25 @@
                         <li data-service={{this.IDService}}
                             class="el-select-dropdown__item adm-select-option item-service__dropdown">
                             <span>{{this.NameService}}</span>
+                        </li>
+                        {{/each}}
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        {{!-- Dropdown TypeEmployee --}}
+        <div class="el-select-dropdown el-popper adm-select-popper" id="dropdown-type__employee"
+            style="min-width: 220px; transform-origin: center bottom; z-index: 2030; display: none;">
+            <div class="el-scrollbar">
+                <div class="el-select-dropdown__wrap el-scrollbar__wrap"
+                    style="margin-bottom: -17px; margin-right: -17px;">
+                    <ul class="el-scrollbar__view el-select-dropdown__list">
+                        {{#each typeEmployee}}
+                        <li data-type={{this.IDTypeStaff}}
+                            class="el-select-dropdown__item adm-select-option item-type-employee__dropdown">
+                            <span>{{this.NameType}}</span>
                         </li>
                         {{/each}}
 

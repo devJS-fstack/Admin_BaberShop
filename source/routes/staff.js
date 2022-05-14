@@ -142,7 +142,62 @@ router.post('/service/edit-service', upload.single('file'), async (req, res) => 
     }
     res.redirect('back');
 })
+router.post('/employee/add-employee', upload.single('file'), async (req, res) => {
+    const body = req.body;
+    console.log(body);
+    var filepathNew = path.join(__dirname, `../public/img/${filepath}`)
+    let lengthAll = await sequelize.query(`select * from Staff`)
+    let idStaffNew = `NV${lengthAll[0].length + 1}`;
+    var isDone = false;
+    let insertStaff = await sequelize.query(`INSERT INTO Staff
+    ([IDStaff]
+    ,[SurName]
+    ,[NameStaff]
+    ,[Gender]
+    ,[Phone]
+    ,[Email]
+    ,[CCCD]
+    ,[IDStore]
+    ,[Status]
+    ,[PathImgStaff]
+    ,[IDManager]
+    ,[TypeStaff])
+    VALUES (
+        '${idStaffNew}',
+        N'${body.surname}',
+        N'${body.name_employee}',
+        N'${body.sex}',
+        '${body.phone}',
+        '${body.email}',
+        '${body.cccd}',
+        ${body.store_id},
+        N'Hoạt Động',
+        'http://localhost:3000/img/${filepath}',
+        '${body.manager_name}',
+        ${body.type_staff}
+    )
+    `)
+    if (req.body.arrServices.length > 0 && insertStaff.length > 0) {
+        var arrIdServices = body.arrServices.split(',');
+        var sql = ''
+        console.log(arrIdServices);
+        arrIdServices.forEach((item, index) => {
+            if (index == 0) {
+                sql = `INSERT INTO Staff_Service (IDStaff,IDService) VALUES('${idStaffNew}',${item})`
+            }
+            else {
+                sql += `,('${idStaffNew}',${item})`
+            }
+            if (index == arrIdServices.length - 1) isDone = true;
+        })
+        if (isDone) await sequelize.query(`${sql}`)
+    }
+
+    res.redirect('back');
+})
 router.post('/service/info-employee', StaffController.getInfoEmployee_service);
+router.post('/employee/info-employee', StaffController.getInfoEmployee);
+router.post('/employee/service-employee-id', StaffController.serviceEmployee_id)
 router.post('/service/delete-service', StaffController.deleteService);
 router.post('/service/info-service', StaffController.infoService);
 router.post('/service/edit-category', StaffController.editCategory)

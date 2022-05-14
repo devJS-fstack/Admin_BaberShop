@@ -451,7 +451,7 @@ class BookingController {
 
     async infoBooking(req, res) {
         let infoBook = await sequelize.query(`SELECT Street,DateBook,NameStaff,SurName,HourStart,MinuteStart,NameDayOfWeek,IDShiftBook,b.IDStaff FROM DayOfWeek as d,Store as s,Book as b,Staff as st,Shift as sh,RegisShift as r
-        WHERE PhoneCustomer ='${req.body.phoneCustomer}' AND Status=N'Đã đặt lịch' AND b.IDShiftBook = sh.IDShift AND b.IDStaff = st.IDStaff
+        WHERE PhoneCustomer ='${req.body.phoneCustomer}' AND b.Status=N'Đã đặt lịch' AND b.IDShiftBook = sh.IDShift AND b.IDStaff = st.IDStaff
         AND b.IDStore = s.IDStore AND d.IDDayOfWeek = r.IDDayOfWeek AND b.DateBook = r.DateRegis AND r.IDStaff = b.IDStaff`, {
             raw: true,
             type: QueryTypes.SELECT,

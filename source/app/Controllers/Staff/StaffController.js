@@ -70,10 +70,25 @@ class StaffController {
         }
         else {
             return res.status(200).json({
-                status: 'failed'
+                statusE: 'failed'
             })
         }
     }
+
+    async serviceEmployee_id(req, res) {
+        let service_employee = await sequelize.query(`select IDService from Staff_Service where IDStaff = '${req.body.idEmployee}'`)
+        if (service_employee[0].length > 0) {
+            return res.status(200).json({
+                statusS: 'success',
+                service_employee: service_employee[0]
+            })
+        } else {
+            return res.status(200).json({
+                statusS: 'failed',
+            })
+        }
+    }
+
     async createCategory(req, res) {
         let createCategory = await sequelize.query(`INSERT INTO TypeService(IDTypeS,NameTypeService,Description,AmountService)
         VALUES(${req.body.id},N'${req.body.name}',N'${req.body.desc}',0)
@@ -128,20 +143,20 @@ class StaffController {
     }
 
     async deleteService(req, res) {
-        // const id = req.body.idService;
-        // let getPathImg = await sequelize.query(`select PathImg FROM Service WHERE IDService = ${id} `);
-        // let fileImgOld = getPathImg[0][0].PathImg.split('/');
-        // let filePathImgOld = path.join(__dirname, `../../../public/img/${fileImgOld[4]}`);
-        // fs.unlink(filePathImgOld, (err) => err);
-        // let deleteStaff_Service = await sequelize.query(`delete Staff_Service WHERE IDService = ${id}`)
-        // let updateAmountOld = await sequelize.query(`update TypeService SET AmountService-=1 WHERE IDTypeS = (SELECT TypeService FROM Service WHERE IDService = ${id})`);
-        // let deleteService = await sequelize.query(`delete service where IDService = ${id}`)
+        const id = req.body.idService;
+        let getPathImg = await sequelize.query(`select PathImg FROM Service WHERE IDService = ${id} `);
+        let fileImgOld = getPathImg[0][0].PathImg.split('/');
+        let filePathImgOld = path.join(__dirname, `../../../public/img/${fileImgOld[4]}`);
+        fs.unlink(filePathImgOld, (err) => err);
+        let deleteStaff_Service = await sequelize.query(`delete Staff_Service WHERE IDService = ${id}`)
+        let updateAmountOld = await sequelize.query(`update TypeService SET AmountService-=1 WHERE IDTypeS = (SELECT TypeService FROM Service WHERE IDService = ${id})`);
+        let deleteService = await sequelize.query(`delete service where IDService = ${id}`)
         return res.status(200).json({
             status: 'success',
         })
     }
     async getInfoEmployee_service(req, res) {
-        let info = await sequelize.query(`select NameStaff,PathImgStaff from Staff_Service as st_s,Staff as s,Service as sv WHERE st_s.IDStaff = s.IDStaff and sv.IDService = st_s.IDService and st_s.IDService = ${req.body.idService}`)
+        let info = await sequelize.query(`select SurName,NameStaff,PathImgStaff from Staff_Service as st_s,Staff as s,Service as sv WHERE st_s.IDStaff = s.IDStaff and sv.IDService = st_s.IDService and st_s.IDService = ${req.body.idService}`)
         return res.status(200).json({
             status: 'success',
             info: info[0],
@@ -152,6 +167,7 @@ class StaffController {
         let store = await sequelize.query(`select * from Store`)
         let managers = await sequelize.query(`select * from Staff where IDManager = IDStaff`)
         let services = await sequelize.query(`select * from Service`)
+        let typeEmployee = await sequelize.query(`select * from TypeStaff`);
         var lengthEmployee = employee[0].length
         res.render('staff/employee', {
             employee: employee[0],
@@ -159,7 +175,16 @@ class StaffController {
             store: store[0],
             managers: managers[0],
             services: services[0],
+            typeEmployee: typeEmployee[0],
         });
+    }
+
+    async getInfoEmployee(req, res) {
+        let employee = await sequelize.query(`select * from Staff WHERE IDStaff = '${req.body.idEmployee}'`)
+        return res.status(200).json({
+            status: 'success',
+            employee: employee[0],
+        })
     }
 
 }
