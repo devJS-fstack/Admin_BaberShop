@@ -29,7 +29,10 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage })
 
 router.post('/service/add-service', upload.single('file'), async (req, res) => {
-    var filepathNew = path.join(__dirname, `../public/img/${filepath}`)
+    var filepathNew = path.join(__dirname, `../public/img/${filepath}`);
+    var services = await sequelize.query(`select * from Service`);
+    var idLast = services[0][services[0].length - 1].IDService;
+    var idNew = idLast + 1;
     uploadFile(filepathNew, mineType, name);
     const body = req.body;
     var price = body.price_service.split('$')[1];
@@ -40,24 +43,24 @@ router.post('/service/add-service', upload.single('file'), async (req, res) => {
         ,[Description]
         ,[PathImg]
         ,[TypeService]
-        ,[ListPrice])
+        ,[ListPrice]
+        ,[Status])
     VALUES
-        (${body.idServiceNew},
+        (${idNew},
         N'${body.name_service}',
         N'${body.description_service}',
         'http://localhost:3000/img/${filepath}',
         ${body.category_name},
-        ${price}
+        ${price},N'Hoạt Động'
             )`)
-    let updateAmount = await sequelize.query(`UPDATE TypeService SET AmountService+=1 WHERE IDTypeS = ${body.category_name}`)
     var sql = '';
     var isDone = false;
     arrEmployee.forEach((employee, index) => {
         if (index == 0) {
-            sql = `INSERT INTO Staff_Service (IDStaff,IDService) VALUES('${employee}',${body.idServiceNew})`
+            sql = `INSERT INTO Staff_Service (IDStaff,IDService) VALUES('${employee}',${idNew})`
         }
         else {
-            sql += `,('${employee}',${body.idServiceNew})`
+            sql += `,('${employee}',${idNew})`
         }
         if (index == arrEmployee.length - 1) {
             isDone = true;
@@ -66,6 +69,7 @@ router.post('/service/add-service', upload.single('file'), async (req, res) => {
 
     if (isDone) {
         let createStaff_Service = await sequelize.query(sql);
+        let updateAmount = await sequelize.query(`update TypeService SET AmountService = (SELECT Count(IDService) FROM Service WHERE TypeService = IDTypeS)`)
     }
     res.redirect('back');
 })
@@ -73,7 +77,6 @@ router.post('/service/edit-service-without-img', async (req, res) => {
     const body = req.body;
     var price = body.price_service.split('$')[1];
     var arrEmployee = body.arrEmployee.split(',');
-    let updateAmountOld = await sequelize.query(`update TypeService SET AmountService-=1 WHERE IDTypeS = (SELECT TypeService FROM Service WHERE IDService = ${body.idServiceNew})`)
     let editService = await sequelize.query(`UPDATE [dbo].[Service]
         SET 
            [NameService] = N'${body.name_service}'
@@ -83,7 +86,6 @@ router.post('/service/edit-service-without-img', async (req, res) => {
       WHERE IDService = ${body.idServiceNew}`)
     var sql = '';
     var isDone = false;
-    let updateAmountNew = await sequelize.query(`UPDATE TypeService SET AmountService+=1 WHERE IDTypeS = ${body.category_name}`)
     let deleteStaffService_old = await sequelize.query(` delete Staff_Service WHERE IDService = ${body.idServiceNew} `)
     arrEmployee.forEach((employee, index) => {
         if (index == 0) {
@@ -99,6 +101,7 @@ router.post('/service/edit-service-without-img', async (req, res) => {
 
     if (isDone) {
         let createStaff_Service = await sequelize.query(sql);
+        let updateAmount = await sequelize.query(`update TypeService SET AmountService = (SELECT Count(IDService) FROM Service WHERE TypeService = IDTypeS)`)
     }
     res.redirect('back');
 })
@@ -112,7 +115,6 @@ router.post('/service/edit-service', upload.single('file'), async (req, res) => 
     fs.unlink(filePathImgOld, (err) => err);
     var price = body.price_service.split('$')[1];
     var arrEmployee = body.arrEmployee.split(',');
-    let updateAmountOld = await sequelize.query(`update TypeService SET AmountService-=1 WHERE IDTypeS = (SELECT TypeService FROM Service WHERE IDService = ${body.idServiceNew})`)
     let editService = await sequelize.query(`UPDATE [dbo].[Service]
     SET 
        [NameService] = N'${body.name_service}'
@@ -123,7 +125,6 @@ router.post('/service/edit-service', upload.single('file'), async (req, res) => 
   WHERE IDService = ${body.idServiceNew}`)
     var sql = '';
     var isDone = false;
-    let updateAmountNew = await sequelize.query(`UPDATE TypeService SET AmountService+=1 WHERE IDTypeS = ${body.category_name}`)
     let deleteStaffService_old = await sequelize.query(` delete Staff_Service WHERE IDService = ${body.idServiceNew} `)
     arrEmployee.forEach((employee, index) => {
         if (index == 0) {
@@ -138,16 +139,16 @@ router.post('/service/edit-service', upload.single('file'), async (req, res) => 
     })
 
     if (isDone) {
+        let updateAmount = await sequelize.query(`update TypeService SET AmountService = (SELECT Count(IDService) FROM Service WHERE TypeService = IDTypeS)`)
         let createStaff_Service = await sequelize.query(sql);
     }
     res.redirect('back');
 })
 router.post('/employee/add-employee', upload.single('file'), async (req, res) => {
     const body = req.body;
-    console.log(body);
     var filepathNew = path.join(__dirname, `../public/img/${filepath}`)
-    let lengthAll = await sequelize.query(`select * from Staff`)
-    let idStaffNew = `NV${lengthAll[0].length + 1}`;
+    let getIdStaffNew = await sequelize.query(`select IDNewStaff from IDNewStaff `);
+    let idStaffNew = getIdStaffNew[0][0].IDNewStaff;
     var isDone = false;
     let insertStaff = await sequelize.query(`INSERT INTO Staff
     ([IDStaff]
@@ -178,9 +179,11 @@ router.post('/employee/add-employee', upload.single('file'), async (req, res) =>
     )
     `)
     if (req.body.arrServices.length > 0 && insertStaff.length > 0) {
+        let idNew = idStaffNew.split('NV');
+        let deleteLastStaff = await sequelize.query(`DELETE IDNewStaff`)
+        let updateIdStaffNew = await sequelize.query(`INSERT INTO IDNewStaff(IDLastStaff,IDNewStaff) VALUES('${idStaffNew}','NV${parseInt(idNew[1]) + 1}')`)
         var arrIdServices = body.arrServices.split(',');
         var sql = ''
-        console.log(arrIdServices);
         arrIdServices.forEach((item, index) => {
             if (index == 0) {
                 sql = `INSERT INTO Staff_Service (IDStaff,IDService) VALUES('${idStaffNew}',${item})`
@@ -195,9 +198,91 @@ router.post('/employee/add-employee', upload.single('file'), async (req, res) =>
 
     res.redirect('back');
 })
+router.post('/employee/edit-employee-without-img', async (req, res) => {
+    const body = req.body
+
+    let updateStaff = await sequelize.query(`
+    UPDATE [dbo].[Staff]
+   SET 
+    [SurName] =  N'${body.surname}'
+    ,[NameStaff] =N'${body.name_employee}'
+    ,[Gender] =  N'${body.sex}'
+    ,[Phone] = '${body.phone}'
+    ,[Email] = '${body.email}'
+    ,[CCCD] = '${body.cccd}'
+    ,[IDStore] =  ${body.store_id}
+    ,[IDManager] = '${body.manager_name}'
+    ,[TypeStaff] = ${body.type_staff}
+ WHERE IDStaff = '${body.idStaff}'
+    `)
+    var isDone = false;
+    let deleteStaffService_old = await sequelize.query(` delete Staff_Service WHERE IDStaff = '${body.idStaff}'`)
+    if (req.body.arrServices.length > 0 && updateStaff.length > 0) {
+        var arrIdServices = body.arrServices.split(',');
+        var sql = ''
+        arrIdServices.forEach((item, index) => {
+            if (index == 0) {
+                sql = `INSERT INTO Staff_Service (IDStaff,IDService) VALUES('${body.idStaff}',${item})`
+            }
+            else {
+                sql += `,('${body.idStaff}',${item})`
+            }
+            if (index == arrIdServices.length - 1) isDone = true;
+        })
+        if (isDone) await sequelize.query(`${sql}`)
+    }
+    res.redirect('back');
+})
+router.post('/employee/edit-employee-withimg', upload.single('file'), async (req, res) => {
+    const body = req.body
+    var filepathNew = path.join(__dirname, `../public/img/${filepath}`)
+    let getPathImg = await sequelize.query(`select PathImgStaff FROM Staff WHERE IDStaff = '${body.idStaff}' `);
+    let fileImgOld;
+    if (getPathImg[0].length > 0) {
+        fileImgOld = getPathImg[0][0].PathImgStaff.split('/');
+    }
+    let filePathImgOld = path.join(__dirname, `../public/img/${fileImgOld[4]}`);
+    fs.unlink(filePathImgOld, (err) => err);
+    let updateStaff = await sequelize.query(`
+        UPDATE [dbo].[Staff]
+       SET 
+        [SurName] =  N'${body.surname}'
+        ,[NameStaff] =N'${body.name_employee}'
+        ,[Gender] =  N'${body.sex}'
+        ,[Phone] = '${body.phone}'
+        ,[Email] = '${body.email}'
+        ,[CCCD] = '${body.cccd}'
+        ,[IDStore] =  ${body.store_id}
+        ,[IDManager] = '${body.manager_name}'
+        ,[TypeStaff] = ${body.type_staff}
+        ,[PathImgStaff] = 'http://localhost:3000/img/${filepath}'
+     WHERE IDStaff = '${body.idStaff}'
+        `)
+    var isDone = false;
+    let deleteStaffService_old = await sequelize.query(` delete Staff_Service WHERE IDStaff = '${body.idStaff}'`)
+    if (req.body.arrServices.length > 0 && updateStaff.length > 0) {
+        var arrIdServices = body.arrServices.split(',');
+        var sql = ''
+        arrIdServices.forEach((item, index) => {
+            if (index == 0) {
+                sql = `INSERT INTO Staff_Service (IDStaff,IDService) VALUES('${body.idStaff}',${item})`
+            }
+            else {
+                sql += `,('${body.idStaff}',${item})`
+            }
+            if (index == arrIdServices.length - 1) isDone = true;
+        })
+        if (isDone) await sequelize.query(`${sql}`)
+    }
+    res.redirect('back');
+})
+router.post('/employee/delete-employee', StaffController.deleteEmployee);
 router.post('/service/info-employee', StaffController.getInfoEmployee_service);
 router.post('/employee/info-employee', StaffController.getInfoEmployee);
 router.post('/employee/service-employee-id', StaffController.serviceEmployee_id)
+router.post('/employee/set-status', StaffController.setStatusEmployee)
+router.post('/employee/info-book', StaffController.getInfoBook_Employee)
+router.post('/service/info-book', StaffController.getInfoBook_service)
 router.post('/service/delete-service', StaffController.deleteService);
 router.post('/service/info-service', StaffController.infoService);
 router.post('/service/edit-category', StaffController.editCategory)

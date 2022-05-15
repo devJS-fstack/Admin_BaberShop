@@ -32,10 +32,11 @@ class StaffController {
         res.render('staff/main')
     }
     async service(req, res) {
+        let updateAmount = await sequelize.query(`update TypeService SET AmountService = (SELECT Count(IDService) FROM Service WHERE TypeService = IDTypeS)`)
         let categories = await sequelize.query(`Select  * from TypeService`);
         let allService = await sequelize.query(`Select sum(AmountService) as Sum from TypeService`);
-        let services = await sequelize.query(`Select * from Service`);
-        let employee = await sequelize.query(`Select * from Staff`);
+        let services = await sequelize.query(`Select * from Service WHERE Status = N'Hoạt Động'`);
+        let employee = await sequelize.query(`Select * from Staff WHERE TypeStaff = 1 AND Status = N'Hoạt Động'`);
         res.render('staff/service', {
             categories: categories[0],
             lengthCategory: categories[0].length,
@@ -46,7 +47,7 @@ class StaffController {
     }
 
     async employService(req, res) {
-        let employee_service = await sequelize.query(`select st_s.IDService,PathImgStaff,TypeService from Staff_Service as st_s,Staff as s,Service as sv WHERE st_s.IDStaff = s.IDStaff and sv.IDService = st_s.IDService`)
+        let employee_service = await sequelize.query(`select st_s.IDService,PathImgStaff,TypeService from Staff_Service as st_s,Staff as s,Service as sv WHERE st_s.IDStaff = s.IDStaff and sv.IDService = st_s.IDService AND s.Status = N'Hoạt Động'`)
         if (employee_service[0].length > 0) {
             return res.status(200).json({
                 status: 'success',
@@ -111,9 +112,7 @@ class StaffController {
     async deleteCategory(req, res) {
 
         let updateType = await sequelize.query(`UPDATE Service SET TypeService = 1 WHERE TypeService = ${req.body.id}`)
-        if (req.body.lengthService > 0) {
-            let updateAmount = await sequelize.query(`UPDATE TypeService SET AmountService+=${req.body.lengthService} WHERE IDTypeS = 1`)
-        }
+        let updateAmount = await sequelize.query(`update TypeService SET AmountService = (SELECT Count(IDService) FROM Service WHERE TypeService = IDTypeS)`)
         let deleteCategory = await sequelize.query(`delete TypeService where IDTypeS = ${req.body.id}`)
         if (deleteCategory.length > 0) {
             return res.status(200).json({
@@ -149,24 +148,47 @@ class StaffController {
         let filePathImgOld = path.join(__dirname, `../../../public/img/${fileImgOld[4]}`);
         fs.unlink(filePathImgOld, (err) => err);
         let deleteStaff_Service = await sequelize.query(`delete Staff_Service WHERE IDService = ${id}`)
-        let updateAmountOld = await sequelize.query(`update TypeService SET AmountService-=1 WHERE IDTypeS = (SELECT TypeService FROM Service WHERE IDService = ${id})`);
+        let updateAmount = await sequelize.query(`update TypeService SET AmountService = (SELECT Count(IDService) FROM Service WHERE TypeService = IDTypeS)`)
+        let deleteBookItem = await sequelize.query(`DELETE BookItem WHERE IDService = ${id}`)
         let deleteService = await sequelize.query(`delete service where IDService = ${id}`)
+        let updatePaymentBook = await sequelize.query(`UPDATE Book SET Payment = (SELECT Sum(Price) FROM BookItem) WHERE Status = N'Đã đặt lịch'`)
         return res.status(200).json({
             status: 'success',
         })
     }
     async getInfoEmployee_service(req, res) {
-        let info = await sequelize.query(`select SurName,NameStaff,PathImgStaff from Staff_Service as st_s,Staff as s,Service as sv WHERE st_s.IDStaff = s.IDStaff and sv.IDService = st_s.IDService and st_s.IDService = ${req.body.idService}`)
+        let info = await sequelize.query(`select SurName,NameStaff,PathImgStaff from Staff_Service as st_s,Staff as s,Service as sv WHERE st_s.IDStaff = s.IDStaff and sv.IDService = st_s.IDService and st_s.IDService = ${req.body.idService} AND s.Status = N'Hoạt Động' `)
         return res.status(200).json({
             status: 'success',
             info: info[0],
         })
     }
+
+    async getInfoBook_service(req, res) {
+        let infoBookFuture = await sequelize.query(`select IDService FROM BookItem as bi,Book as b WHERE IDService = ${req.body.idService} AND b.DateBook = bi.DateBook AND b.IDShiftBook = bi.IDShiftBook AND b.Status = N'Đã đặt lịch'`);
+        let infoBookDone = await sequelize.query(`select IDService FROM BookItem as bi,Book as b WHERE IDService = ${req.body.idService} AND b.DateBook = bi.DateBook AND b.IDShiftBook = bi.IDShiftBook AND b.Status = N'Đã thanh toán'`);
+        return res.status(200).json({
+            status: 'success',
+            infoBookFuture: infoBookFuture[0],
+            infoBookDone: infoBookDone[0],
+        })
+    }
+
+    async getInfoBook_Employee(req, res) {
+        let infoBookFuture = await sequelize.query(`select IDStaff FROM Book WHERE IDStaff = '${req.body.idEmployee}' AND Status = N'Đã đặt lịch'`);
+        let infoBookDone = await sequelize.query(`select IDStaff FROM Book WHERE IDStaff = '${req.body.idEmployee}' AND Status = N'Đã thanh toán'`);
+        return res.status(200).json({
+            status: 'success',
+            infoBookFuture: infoBookFuture[0],
+            infoBookDone: infoBookDone[0],
+        })
+    }
+
     async employee(req, res) {
         let employee = await sequelize.query(`select * from Staff`)
         let store = await sequelize.query(`select * from Store`)
         let managers = await sequelize.query(`select * from Staff where IDManager = IDStaff`)
-        let services = await sequelize.query(`select * from Service`)
+        let services = await sequelize.query(`select * from Service WHERE Status = N'Hoạt Động'`)
         let typeEmployee = await sequelize.query(`select * from TypeStaff`);
         var lengthEmployee = employee[0].length
         res.render('staff/employee', {
@@ -187,6 +209,29 @@ class StaffController {
         })
     }
 
+
+    async deleteEmployee(req, res) {
+        const id = req.body.idEmployee;
+        let getPathImg = await sequelize.query(`select PathImgStaff FROM Staff WHERE IDStaff = '${id}' `);
+        let fileImgOld = getPathImg[0][0].PathImgStaff.split('/');
+        let filePathImgOld = path.join(__dirname, `../../../public/img/${fileImgOld[4]}`);
+        fs.unlink(filePathImgOld, (err) => err);
+        let deleteStaff_Service = await sequelize.query(`delete Staff_Service WHERE IDStaff = '${id}'`)
+        let deleteBookItem = await sequelize.query(`delete BookItem WHERE IDStaff = '${id}'`)
+        let deleteBook = await sequelize.query(`delete Book WHERE IDStaff = '${id}'`)
+        let deleteRegis = await sequelize.query(`delete RegisShift WHERE IDStaff = '${id}'`)
+        let deleteEmployee = await sequelize.query(`delete Staff WHERE IDStaff = '${id}'`)
+        return res.status(200).json({
+            status: 'success',
+        })
+    }
+
+    async setStatusEmployee(req, res) {
+        let setStatus = await sequelize.query(`UPDATE Staff SET Status = N'${req.body.status}' WHERE IDStaff = '${req.body.idEmployee}'`)
+        return res.status(200).json({
+            status: 'success',
+        })
+    }
 }
 
 

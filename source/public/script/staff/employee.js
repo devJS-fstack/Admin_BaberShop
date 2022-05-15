@@ -26,6 +26,7 @@ var idstore_add = -1;
 var idmanager;
 var idTypeStaff = 1;
 var idStore;
+var isUpload = false;
 //  input
 
 const inputSurName = document.getElementById('input-surname-employee__add');
@@ -38,6 +39,8 @@ const inputPhone = document.querySelector('#input-phone-employee__add');
 const inputSex = document.querySelector('#input-sex-employee__add');
 const inputService = document.querySelector('#input-service_assign__add');
 const inputTypeEm = document.querySelector('#input-type-employee__add');
+
+
 
 upload_element.onclick = (e) => {
     upload_input.click();
@@ -573,9 +576,12 @@ btnAddDefault.addEventListener('click', (e) => {
     inputService.placeholder = "Chọn Dịch Vụ Cho Phép";
     countClick = 0;
     countService = 0;
-
+    idStore = -1;
+    idmanager = -1;
+    idTypeStaff = 1;
 })
 
+const inputEditEm = document.querySelector('#idEmployeeEdit');
 
 btnAddEmployee.addEventListener('click', (e) => {
     e.preventDefault();
@@ -673,12 +679,24 @@ btnAddEmployee.addEventListener('click', (e) => {
             pushIdServiceIntoArr();
             inputArrServices.value = arrServicesId;
         }
+
+        if ($('#adm-btn-employee__add').text().trim() == 'Lưu Thay Đổi') {
+            if (isUpload)
+                formEmployee.action = "employee/edit-employee-withimg";
+            else {
+                formEmployee.action = 'employee/edit-employee-without-img'
+                formEmployee.enctype = '';
+            }
+        }
         inputSurName.value = inputSurName.value.trim();
         inputNameEmployee.value = inputNameEmployee.value.trim();
         inputEmail.value = inputEmail.value.trim();
+        inputCCCD.value = inputCCCD.value.trim();
+        inputPhone.value = inputPhone.value.trim();
         inputStore.value = idStore;
         inputManager.value = idmanager;
         inputTypeEm.value = idTypeStaff;
+        console.log(formEmployee.action);
         formEmployee.submit();
     }
 
@@ -838,7 +856,14 @@ editEmployee.forEach((item, index) => {
         idEmployee = item.getAttribute('data-employee');
         const { status, employee } = await getInfoEmployee(idEmployee);
         const info = employee[0];
+        isUpload = false;
         if (status == 'success') {
+            // set variable to edit
+            idStore = info.IDStore;
+            idmanager = info.IDManager;
+            idTypeStaff = info.TypeStaff;
+            inputEditEm.value = info.IDStaff;
+            // ==>
             inputSurName.value = info.SurName;
             inputNameEmployee.value = info.NameStaff;
             inputCCCD.value = info.CCCD;
@@ -873,6 +898,164 @@ editEmployee.forEach((item, index) => {
     }
 })
 
+//  handle delete employee 
+
+// variable to delete employee
+var idEmployee_delete;
+
+const deleteItem_employee = document.querySelectorAll('.delete-employee');
+const btnConfrimDelete = document.getElementById('btn-delete__employee');
+const notiDeleteEmployee = document.querySelector('.notification-employe_delete p')
+
+
+deleteItem_employee.forEach((item, index) => {
+    item.onclick = async () => {
+        idEmployee_delete = item.getAttribute('data-employee');
+        const { status, infoBookFuture, infoBookDone } = await getInfoBookEmployee(idEmployee_delete);
+        if (status == 'success') {
+            var haveBook = false
+            if (infoBookFuture.length > 0) {
+                haveBook = true;
+                notiDeleteEmployee.textContent = `Bạn có chắc chắn muốn xóa nhân viên này? Hành động này sẽ xóa đi ${infoBookFuture.length} lần đặt nhân viên này trong tương lai`;
+            }
+            if (infoBookDone.length > 0) {
+                haveBook = true;
+                notiDeleteEmployee.textContent = `Bạn có chắc chắn muốn xóa nhân viên này? Hành động này sẽ xóa đi ${infoBookDone.length} lần đã đặt nhân viên này`;
+            }
+            if (infoBookFuture.length > 0 && infoBookDone.length > 0) {
+                haveBook = true;
+                notiDeleteEmployee.textContent = `Bạn có chắc chắn muốn xóa nhân viên này? Hành động này sẽ xóa đi ${infoBookDone.length} lần đã đặt nhân viên này và ${infoBookFuture.length} lần đặt nhân viên này trong tương lai`;
+            }
+            if (!haveBook)
+                notiDeleteEmployee.textContent = `Bạn có chắc chắn muốn xóa nhân viên này? Hành động này sẽ xóa những thông tin khác liên quan đến nhân viên này`;
+        }
+    }
+})
+
+// handle disable employee
+
+const disableItem = document.querySelectorAll('.disable-employee');
+const disableText = document.querySelectorAll('.text-disable');
+const disableIcon = document.querySelectorAll('.icon-disable');
+
+const statusEmployee = document.querySelectorAll('.status svg path');
+const statusColor = document.querySelectorAll('.status');
+const statusText = document.querySelectorAll('.status-text');
+function disableItemClick(idEmployee) {
+    for (var i = 0; i < statusEmployee.length; i++) {
+        if (statusEmployee[i].getAttribute('data-employee') == idEmployee) {
+            statusEmployee[i].setAttribute('d', 'M18 6L6 18M6 6l12 12');
+            statusColor[i].classList.remove('is-green')
+            statusColor[i].classList.add('is-red')
+            statusText[i].textContent = 'Tạm Nghỉ'
+            disableText[i].textContent = 'Hoạt động'
+            disableIcon[i].classList.remove('fa-ban');
+            disableIcon[i].classList.add('fa-user-check');
+            break;
+        }
+    }
+}
+
+function enableItemClick(idEmployee) {
+    for (var i = 0; i < statusEmployee.length; i++) {
+        if (statusEmployee[i].getAttribute('data-employee') == idEmployee) {
+            statusEmployee[i].setAttribute('d', 'M20 6L9 17l-5-5');
+            statusColor[i].classList.add('is-green')
+            statusColor[i].classList.remove('is-red')
+            statusText[i].textContent = 'Hoạt Động'
+            disableText[i].textContent = 'Tạm nghỉ'
+            disableIcon[i].classList.add('fa-ban');
+            disableIcon[i].classList.remove('fa-user-check');
+            break;
+        }
+    }
+}
+
+function launch_toast(mess) {
+    var x = document.getElementById("toast")
+    x.className = "show";
+    x.textContent = '';
+    setTimeout(function () { x.className = x.className.replace("show", ""); }, 3000);
+    setTimeout(function () { x.textContent = mess }, 700);
+}
+
+disableItem.forEach((item, index) => {
+    item.onclick = async () => {
+        let idEmployee_disable = item.getAttribute('data-employee');
+        if (disableText[index].textContent.trim() == 'Tạm nghỉ') {
+            const { status } = await setStatusEmployee(idEmployee_disable, 'Tạm Nghỉ')
+            if (status == 'success') {
+                disableItemClick(idEmployee_disable);
+                launch_toast('Nhân viên này đã được tạm nghỉ');
+            }
+        }
+        else {
+            const { status } = await setStatusEmployee(idEmployee_disable, 'Hoạt Động')
+            if (status == 'success') {
+                enableItemClick(idEmployee_disable);
+                launch_toast('Nhân viên này đã được hoạt động');
+            }
+        }
+
+    }
+})
+
+function removeEmployeeDeleted(idEmployee) {
+    const admEmployee_all = document.querySelectorAll('.adm-service');
+    for (var i = 0; i < admEmployee_all.length; i++) {
+        if (admEmployee_all[i].getAttribute('data-employee') == idEmployee) {
+            admEmployee_all[i].remove();
+            break;
+        }
+    }
+}
+
+btnConfrimDelete.onclick = async function () {
+    const { status } = await deleteEmployee(idEmployee_delete);
+    if (status == 'success') {
+        console.log(status);
+        removeEmployeeDeleted(idEmployee_delete);
+        $('#alertModalDelete').modal('hide');
+    }
+}
+
+function renderStatus() {
+    statusText.forEach((item, index) => {
+        if (item.textContent.trim() == 'Tạm Nghỉ') {
+            statusEmployee[index].setAttribute('d', 'M18 6L6 18M6 6l12 12');
+            statusColor[index].classList.remove('is-green')
+            statusColor[index].classList.add('is-red')
+            statusText[index].textContent = 'Tạm Nghỉ'
+            disableText[index].textContent = 'Hoạt động'
+            disableIcon[index].classList.remove('fa-ban');
+            disableIcon[index].classList.add('fa-user-check');
+        }
+    })
+}
+
+window.addEventListener('load', () => {
+    renderStatus();
+})
+
+async function setStatusEmployee(idEmployee, status) {
+    return (await instance.post('employee/set-status', {
+        idEmployee,
+        status
+    })).data;
+}
+
+async function getInfoBookEmployee(idEmployee) {
+    return (await instance.post('employee/info-book', {
+        idEmployee
+    })).data;
+}
+
+
+async function deleteEmployee(idEmployee) {
+    return (await instance.post('employee/delete-employee', {
+        idEmployee
+    })).data;
+}
 
 async function getInfoEmployee(idEmployee) {
     return (await instance.post('employee/info-employee', {

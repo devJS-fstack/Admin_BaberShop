@@ -732,6 +732,7 @@
     const editDropDown_service = document.querySelectorAll('.edit-service');
     editDropDown_service.forEach((item, index) => {
         item.onclick = async () => {
+            isUpload = false;
             idService_edit = item.getAttribute('data-service');
             tittleService.textContent = 'Chỉnh Sửa Dịch Vụ';
             $('#adm-btn-service__add span').text("Lưu Thay Đổi")
@@ -770,12 +771,32 @@
     const btnConfirm_deleteService = document.querySelector('#btn-delete__service');
     var idService_delete;
     var idtype;
-
+    const notiDelete = document.querySelector('.notification_delete-service p')
 
     var deleteDropDown_service = document.querySelectorAll('.delete-service');
     deleteDropDown_service.forEach((item, index) => {
-        item.onclick = () => {
+        item.onclick = async () => {
             idService_delete = item.getAttribute('data-service');
+            const { status, infoBookFuture, infoBookDone } = await getInfoBookItem(idService_delete);
+            if (status == 'success') {
+                var haveBook = false
+                if (infoBookFuture.length > 0) {
+                    haveBook = true;
+                    notiDelete.textContent = `Bạn có chắc chắn muốn xóa dịch vụ này? Hành động này sẽ xóa đi ${infoBookFuture.length} lần đặt dịch vụ này trong tương lai`;
+                }
+                if (infoBookDone.length > 0) {
+                    haveBook = true;
+                    notiDelete.textContent = `Bạn có chắc chắn muốn xóa dịch vụ này? Hành động này sẽ xóa đi ${infoBookDone.length} lần đã đặt dịch vụ này`;
+                }
+                if (infoBookFuture.length > 0 && infoBookDone.length > 0) {
+                    haveBook = true;
+                    notiDelete.textContent = `Bạn có chắc chắn muốn xóa dịch vụ này? Hành động này sẽ xóa đi ${infoBookDone.length} lần đã đặt dịch vụ này và ${infoBookFuture.length} lần đặt dịch vụ này trong tương lai`;
+                }
+                if (!haveBook)
+                    notiDelete.textContent = `Bạn có chắc chắn muốn xóa dịch vụ này? Hành động này sẽ xóa những thông tin khác liên quan đến dịch vụ này`;
+
+            }
+
             idtype = item.getAttribute('data-type');
         }
     })
@@ -856,6 +877,12 @@
 
 
     // API DATA
+
+    async function getInfoBookItem(idService) {
+        return (await instance.post('service/info-book', {
+            idService,
+        })).data
+    }
 
     async function getInfoEmployee(idService) {
         return (await instance.post('service/info-employee', {

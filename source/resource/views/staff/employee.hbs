@@ -73,6 +73,13 @@
                                     </span>
                                     <span>Thêm Nhân Viên</span>
                                 </button>
+                                <button data-toggle="modal" data-target="#" class="adm-button ml-4"
+                                    id="btn-AddRegisShift">
+                                    <span class="adm-button__icon-wrapper">
+                                        <i class="fa-solid fa-plus"></i>
+                                    </span>
+                                    <span>Thêm Ngày Làm Việc</span>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -136,7 +143,7 @@
                                     <div>
                                         <div>
                                             {{#each employee}}
-                                            <div class="adm-service"
+                                            <div class="adm-service" data-employee={{this.IDStaff}}
                                                 style="border-color: rgb(192, 235, 117);background-color: #182e5b;">
                                                 <div class="adm-service__data">
                                                     <div class="flex-center el-row is-align-middle"
@@ -159,13 +166,24 @@
 
                                                         <div class="el-col el-col-24 el-col-sm-4"
                                                             style="padding-left: 8px; padding-right: 8px;">
-                                                            <div class="status is-green"><svg viewBox="0 0 24 24"
-                                                                    fill="none" stroke="currentColor" stroke-width="2"
+                                                            <div class="status is-green">
+                                                                <svg viewBox="0 0 24 24" fill="none"
+                                                                    stroke="currentColor" stroke-width="2"
                                                                     stroke-linecap="round" stroke-linejoin="round">
-                                                                    <path d="M20 6L9 17l-5-5" />
+                                                                    <path d="M20 6L9 17l-5-5"
+                                                                        data-employee={{this.IDStaff}} />
                                                                 </svg>
-                                                                {{this.Status}}
+                                                                <span class="status-text">{{this.Status}}</span>
                                                             </div>
+                                                            {{!-- <div class="status is-red"
+                                                                data-employee={{this.IDStaff}}>
+                                                                <svg viewBox="0 0 24 24" fill="none"
+                                                                    stroke="currentColor" stroke-width="2"
+                                                                    stroke-linecap="round" stroke-linejoin="round">
+                                                                    <path d="M18 6L6 18M6 6l12 12" />
+                                                                </svg>
+                                                                Tạm Nghỉ
+                                                            </div> --}}
                                                         </div>
                                                         <div class="el-col el-col-24 el-col-sm-4"
                                                             style="padding-left: 8px; padding-right: 8px;">
@@ -191,7 +209,7 @@
                                                                         </span>
                                                                     </button>
                                                                     <ul class="dropdown-menu"
-                                                                        style="left: -50px !important;"
+                                                                        style="left: -50px !important; opactity: 1 !important;"
                                                                         aria-labelledby="dropdownMenuButton">
                                                                         <li data-employee={{this.IDStaff}}
                                                                             class="dropdown-item el-dropdown-menu edit-employee"
@@ -206,7 +224,23 @@
                                                                                 </div>
                                                                             </div>
                                                                         </li>
-                                                                        <li data-toggle="modal" data-target="#"
+                                                                        <li data-employee={{this.IDStaff}}
+                                                                            class="dropdown-item el-dropdown-menu disable-employee">
+                                                                            <div
+                                                                                class="adm-dropdown-item__wrapper is-with-icon">
+                                                                                <div class="adm-dropdown-item__icon">
+                                                                                    <i
+                                                                                        class="fa-solid fa-ban icon-disable"></i>
+                                                                                </div>
+                                                                                <div
+                                                                                    class="adm-dropdown-item__label text-disable">
+                                                                                    Tạm nghỉ
+                                                                                </div>
+                                                                            </div>
+                                                                        </li>
+                                                                        <li data-toggle="modal"
+                                                                            data-target="#alertModalDelete"
+                                                                            data-employee={{this.IDStaff}}
                                                                             class=" dropdown-item el-dropdown-menu delete-employee">
                                                                             <div
                                                                                 class="adm-dropdown-item__wrapper is-red is-with-icon">
@@ -606,6 +640,7 @@
                             </div>
 
                             <input type="text" id="arrServiceAssign" name="arrServices" style="display:none">
+                            <input type="text" id="idEmployeeEdit" name="idStaff" style="display:none">
                         </form>
                     </div>
                     <div class="modal-footer" style="justify-content: flex-end !important">
@@ -623,7 +658,37 @@
             </div>
         </div>
 
-
+        {{!-- Modal alert --}}
+        {{!-- alert confirm delete employee --}}
+        <div class="modal fade" id="alertModalDelete" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header" style="border:none;padding-bottom:0">
+                        <h5 class="modal-title" id="alertModalLabel">Xóa Nhân Viên</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body notification-employe_delete" style="padding-bottom:5px">
+                        <p>Bạn có chắc chắn muốn xóa nhân viên này? Hành động này sẽ làm mất vĩnh viễn dữ liệu liên quan
+                            của
+                            nhân viên này.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button data-dismiss="modal" class="adm-button adm-button__filled__grey adm-button-size__medium"
+                            style="border:none;height:36px">
+                            <span>Đóng</span>
+                        </button>
+                        <button id="btn-delete__employee"
+                            class="adm-button adm-button__filled__red adm-button-size__medium ml-3"
+                            style="border:none;height:36px">
+                            <span>Xóa</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         {{!-- Drop down --}}
 
@@ -719,6 +784,13 @@
                     </ul>
                 </div>
             </div>
+        </div>
+
+
+        {{!-- toast --}}
+        <div id="toast">
+            <div id="img"></div>
+            <div id="desc"></div>
         </div>
 
 </body>

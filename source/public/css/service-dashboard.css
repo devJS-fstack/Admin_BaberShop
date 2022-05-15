@@ -121,7 +121,6 @@ p {
   background: #ef4a85; }
 
 .services-list {
-  overflow: hidden;
   padding-bottom: 10px;
   width: 100%; }
 
@@ -607,6 +606,9 @@ p {
 .adm-dropdown-item__wrapper.is-red {
   color: #e90e5c; }
 
+.adm-dropdown-item__wrapper.is-red {
+  color: #e90e5c; }
+
 .el-form-item__uploader__image {
   border: 1px dashed #005aee;
   border-radius: 5px;
@@ -1048,3 +1050,116 @@ button.adm-button.adm-button__ghost__red:hover {
   word-break: normal;
   color: #14233d;
   font-size: 14px; }
+
+#toast {
+  visibility: hidden;
+  max-width: 50px;
+  height: 50px;
+  /*margin-left: -125px;*/
+  margin: auto;
+  background-color: #18ca75;
+  color: #fff;
+  text-align: center;
+  border-radius: 2px;
+  justify-content: center;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  right: 0;
+  top: 30px;
+  font-size: 17px;
+  white-space: nowrap;
+  display: flex;
+  align-items: center; }
+
+#toast #img {
+  width: 0px;
+  height: 50px;
+  float: left;
+  padding-top: 16px;
+  padding-bottom: 16px;
+  box-sizing: border-box;
+  background-color: transparent;
+  color: #fff; }
+
+#toast #desc {
+  color: #fff;
+  padding: 16px;
+  text-align: center;
+  overflow: hidden;
+  white-space: nowrap;
+  font-family: be vietnam pro, sans-serif;
+  font-size: 12px; }
+
+#toast.show {
+  visibility: visible;
+  -webkit-animation: fadein 0.5s, expand 0.5s 0.5s, stay 3s 1s, shrink 0.5s 2s, fadeout 0.5s 2.5s;
+  animation: fadein 0.5s, expand 0.5s 0.5s, stay 3s 1s, shrink 0.5s 4s, fadeout 0.5s 4.5s; }
+
+@-webkit-keyframes fadein {
+  from {
+    top: 0;
+    opacity: 0; }
+  to {
+    top: 30px;
+    opacity: 1; } }
+
+@keyframes fadein {
+  from {
+    top: 0;
+    opacity: 0; }
+  to {
+    top: 30px;
+    opacity: 1; } }
+
+@-webkit-keyframes expand {
+  from {
+    min-width: 50px; }
+  to {
+    min-width: 350px; } }
+
+@keyframes expand {
+  from {
+    min-width: 50px; }
+  to {
+    min-width: 350px; } }
+
+@-webkit-keyframes stay {
+  from {
+    min-width: 350px; }
+  to {
+    min-width: 350px; } }
+
+@keyframes stay {
+  from {
+    min-width: 350px; }
+  to {
+    min-width: 350px; } }
+
+@-webkit-keyframes shrink {
+  from {
+    min-width: 350px; }
+  to {
+    min-width: 50px; } }
+
+@keyframes shrink {
+  from {
+    min-width: 350px; }
+  to {
+    min-width: 50px; } }
+
+@-webkit-keyframes fadeout {
+  from {
+    top: 30px;
+    opacity: 1; }
+  to {
+    top: 60px;
+    opacity: 0; } }
+
+@keyframes fadeout {
+  from {
+    top: 30px;
+    opacity: 1; }
+  to {
+    top: 60px;
+    opacity: 0; } }
