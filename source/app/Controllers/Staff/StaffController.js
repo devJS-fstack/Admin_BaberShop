@@ -190,7 +190,8 @@ class StaffController {
         let managers = await sequelize.query(`select * from Staff where IDManager = IDStaff`)
         let services = await sequelize.query(`select * from Service WHERE Status = N'Hoạt Động'`)
         let typeEmployee = await sequelize.query(`select * from TypeStaff`);
-        var lengthEmployee = employee[0].length
+        var lengthEmployee = employee[0].length;
+        let employeesIsActive = await sequelize.query(`select * from Staff WHERE Status = N'Hoạt Động' AND TypeStaff = 1`)
         res.render('staff/employee', {
             employee: employee[0],
             lengthEmployee,
@@ -198,6 +199,7 @@ class StaffController {
             managers: managers[0],
             services: services[0],
             typeEmployee: typeEmployee[0],
+            employeesIsActive: employeesIsActive[0]
         });
     }
 
@@ -231,6 +233,95 @@ class StaffController {
         return res.status(200).json({
             status: 'success',
         })
+    }
+
+    async regisShift(req, res) {
+        var arrDate = req.body.arrDate;
+        var arrEmployee = req.body.arrEmployee;
+        var sql = ``;
+        var isDone = false;
+        var countLoop = 0;
+        arrDate.forEach((date, index) => {
+            if (index == 0) {
+                sql = `
+        INSERT INTO [dbo].[RegisShift]
+                   ([DateRegis]
+                   ,[IDStaff]
+                   ,[IDDayOfWeek]
+                   ,[IDStore]
+                   )`;
+            }
+            countLoop++;
+            arrEmployee.forEach((employee, index1) => {
+                var d = new Date(`${date}`)
+                if (countLoop == 1) {
+                    sql += `VALUES ('${date}','${employee}',${d.getDay()},${req.body.idStore})`
+                    countLoop = 2;
+                } else {
+                    sql += `,('${date}','${employee}',${d.getDay()},${req.body.idStore})`
+                }
+            })
+
+            if (index == arrDate.length - 1) {
+                isDone = true;
+            }
+        })
+
+        if (isDone) {
+            await sequelize.query(`${sql}`);
+            // console.log(sql)
+        }
+
+
+        return res.status(200).json({
+            status: 'success',
+        })
+    }
+
+    async checkEmployeeRegis(req, res) {
+        var arrDate = req.body.arrDate;
+        var arrEmployee = req.body.arrEmployee;
+        var sql = ``;
+        var isDone = false;
+        var countLoop = 0;
+        arrDate.forEach((date, index) => {
+            if (index == 0) {
+                sql = `
+        SELECT DateRegis FROM RegisShift WHERE `;
+            }
+            countLoop++;
+            arrEmployee.forEach((employee, index1) => {
+                var d = new Date(`${date}`)
+                if (countLoop == 1) {
+                    sql += `IDStaff = '${employee}' AND DateRegis = '${date}'`
+                    countLoop = 2;
+                } else {
+                    sql += `OR IDStaff = '${employee}' AND DateRegis = '${date}'`
+                }
+            })
+
+            if (index == arrDate.length - 1) {
+                isDone = true;
+            }
+        })
+
+        if (isDone) {
+            let checkEmployeeRegis = await sequelize.query(sql);
+            if (checkEmployeeRegis[0].length > 0) {
+                return res.status(200).json({
+                    status_haveEmployee: 'have',
+                })
+            }
+            else {
+                return res.status(200).json({
+                    status_haveEmployee: 'not-have',
+                })
+            }
+
+        }
+
+
+
     }
 }
 

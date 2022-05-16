@@ -950,7 +950,7 @@ function disableItemClick(idEmployee) {
             statusText[i].textContent = 'Tạm Nghỉ'
             disableText[i].textContent = 'Hoạt động'
             disableIcon[i].classList.remove('fa-ban');
-            disableIcon[i].classList.add('fa-user-check');
+            disableIcon[i].classList.add('fa-check');
             break;
         }
     }
@@ -965,7 +965,7 @@ function enableItemClick(idEmployee) {
             statusText[i].textContent = 'Hoạt Động'
             disableText[i].textContent = 'Tạm nghỉ'
             disableIcon[i].classList.add('fa-ban');
-            disableIcon[i].classList.remove('fa-user-check');
+            disableIcon[i].classList.remove('fa-check');
             break;
         }
     }
@@ -1028,14 +1028,364 @@ function renderStatus() {
             statusText[index].textContent = 'Tạm Nghỉ'
             disableText[index].textContent = 'Hoạt động'
             disableIcon[index].classList.remove('fa-ban');
-            disableIcon[index].classList.add('fa-user-check');
+            disableIcon[index].classList.add('fa-check');
         }
     })
 }
 
+// => handle regis shift 
+
+const btnConfirmRegis = document.getElementById('adm-add-regis_shift');
+const inputdateFrom = document.getElementById('input_from');
+const inputdateTo = document.getElementById('input_to');
+const inputStore_Regis = document.getElementById('input-store-regis-shift')
+
+const inputEmployeRegis = document.getElementById('input-employee-regis__shift');
+const dropDown_employeeService = document.querySelector('#dropdown-employee__service');
+const listDropdown_employee = document.querySelectorAll('.list-employee__dropdown');
+
+var scrollYStore_Regis = 455;
+var scrollY_employee = 555;
+let isOver_employee = false;
+var isOver_storeRegis = false;
+
+
+dropDown_employeeService.onmouseover = function () {
+    isOver_employee = true;
+}
+
+dropDown_employeeService.onmouseleave = function () {
+    isOver_employee = false;
+}
+
+
+
+inputEmployeRegis.onclick = () => {
+    if (dropDown_employeeService.getAttribute('style') == 'min-width: 450px; transform-origin: center bottom; z-index: 2003; display: none;') {
+        arrows_down[6].style.transform = 'rotate(0deg)';
+        dropDown_employeeService.style = `min-width: 450px; position: fixed; top: ${scrollY_employee}px; left: 543px; transform-origin: center bottom; z-index: 2003; display:block;`
+    }
+    else {
+        arrows_down[6].style.transform = 'rotate(180deg)';
+        dropDown_employeeService.style = 'min-width: 450px; transform-origin: center bottom; z-index:2003; display: none;'
+    }
+}
+
+const dropDownStore_regis = document.getElementById('dropdown-store__regis');
+const itemDropdownStore_regis = document.querySelectorAll('.item-store__dropdown_regis');
+const span_storeRegis = document.querySelectorAll('.item-store__dropdown_regis span')
+dropDownStore_regis.onmouseover = function () {
+    isOver_storeRegis = true;
+}
+
+dropDownStore_regis.onmouseleave = function () {
+    isOver_storeRegis = false;
+}
+
+inputStore_Regis.onclick = () => {
+    if (dropDownStore_regis.getAttribute('style') == 'min-width: 400px; transform-origin: center top; z-index: 2026; display: none;') {
+        arrows_down[5].style.transform = 'rotate(0deg)';
+        dropDownStore_regis.style = `min-width: 400px; transform-origin: center top; z-index: 2030; position: fixed; top: ${scrollYStore_Regis}px; left: 530px;display:block;`
+    }
+    else {
+        arrows_down[5].style.transform = 'rotate(180deg)';
+        dropDownStore_regis.style = `min-width: 400px; transform-origin: center top; z-index: 2026; display: none`
+    }
+}
+
+inputEmployeRegis.onfocusout = () => {
+    if (!isOver_employee) {
+        arrows_down[6].style.transform = 'rotate(180deg)';
+        dropDown_employeeService.style = 'min-width: 450px; transform-origin: center bottom; z-index:2003; display: none;'
+    }
+}
+
+inputStore_Regis.onfocusout = () => {
+    if (!isOver_storeRegis) {
+        arrows_down[5].style.transform = 'rotate(180deg)';
+        dropDownStore_regis.style = `min-width: 400px; transform-origin: center top; z-index: 2026; display: none`
+    }
+}
+
+
+
+var indexPreStore_regis = -1;
+itemDropdownStore_regis.forEach((item, index) => {
+    item.onclick = function () {
+        idStoreRegis = item.getAttribute('data-store')
+        removeAllSelectedEmployee();
+        renderEmployee_Store(item.getAttribute('data-store'))
+        inputEmployeRegis.value = "";
+        if (indexPreStore_regis != -1) {
+            itemDropdownStore_regis[indexPreStore_regis].classList.remove('selected');
+        }
+        inputStore_Regis.value = span_storeRegis[index].textContent.trim();
+        arrows_down[5].style.transform = 'rotate(180deg)';
+        dropDownStore_regis.style = `min-width: 400px; transform-origin: center top; z-index: 2026; display: none`
+        item.classList.add('selected');
+        indexPreStore_regis = index;
+    }
+})
+const noData_employee = document.querySelector('.no-data__employee')
+function renderEmployee_Store(idStore) {
+    var haveEmployee = false;
+    listDropdown_employee.forEach((item, index) => {
+        if (item.getAttribute('data-store') == idStore) {
+            item.style.display = 'flex';
+            noData_employee.style.display = 'none';
+            haveEmployee = true;
+        }
+        else {
+            item.style.display = 'none';
+        }
+    })
+
+    if (haveEmployee == false) noData_employee.style.display = 'flex';
+}
+
+const btnRegisShift = document.getElementById('btn-AddRegisShift')
+
+btnRegisShift.onclick = (e) => {
+    removeAllSelectedEmployee();
+    removeAllSelectedStore();
+    inputStore_Regis.value = "";
+    inputdateFrom.value = "";
+    inputdateTo.value = "";
+}
+
+var indexFirstChecking_e = -1;
+var indexIsChecking_e = -1;
+var countClick_e = 0;
+var countEmployee = 0;
+
+function getIndexIsChecking_e() {
+    for (var i = 0; i < listDropdown_employee.length; i++) {
+        if (listDropdown_employee[i].classList.contains('selected')) {
+            indexIsChecking_e = i;
+            break;
+        }
+    }
+}
+
+
+const tags_employee = document.querySelectorAll('.el-select__tags span');
+const span_nameEmployee = document.querySelectorAll('.list-employee__dropdown span');
+function removeAllSelectedEmployee() {
+    tags_employee[1].innerHTML = '';
+    inputEmployeRegis.value = "";
+    countClick_e = 0;
+    countEmployee = 0;
+    listDropdown_employee.forEach((item, index) => {
+        if (item.classList.contains('selected')) item.classList.remove('selected');
+    })
+}
+
+function removeAllSelectedStore() {
+    indexPreStore_regis = -1;
+    itemDropdownStore_regis.forEach((item, index) => {
+        if (item.classList.contains('selected')) item.classList.remove('selected');
+    })
+}
+
+
+listDropdown_employee.forEach((item, index) => {
+    item.onclick = function () {
+        // arrIdStaff_service = []
+        inputEmployeRegis.value = ' ';
+        inputEmployeRegis.focus();
+        countClick_e++;
+        if (countClick_e == 1) {
+            indexFirstChecking_e = index;
+        }
+        if (listDropdown_employee[index].classList.contains('selected')) {
+            listDropdown_employee[index].classList.remove('selected');
+            if (indexFirstChecking_e == index && countClick_e > 1) {
+                getIndexIsChecking_e();
+                if (indexIsChecking_e == -1) {
+                    indexIsChecking_e = indexFirstChecking_e;
+                }
+                indexFirstChecking_e = indexIsChecking_e;
+                const tagsText = document.querySelector('.el-select__tags-text')
+                tagsText.innerHTML = span_nameEmployee[indexIsChecking_e].textContent.trim()
+            }
+            countEmployee--;
+            if (countEmployee == 1) {
+                const spanCount = document.querySelectorAll('.el-tag--info');
+                spanCount[1].remove();
+            }
+            else if (countEmployee > 1) {
+                const spanCount = document.querySelectorAll('.el-select__tags-text');
+                spanCount[1].textContent = `+${countEmployee - 1}`
+            }
+            else {
+                const spanCount = document.querySelectorAll('.el-tag--info');
+                spanCount[0].remove();
+                inputEmployeRegis.placeholder = 'Chọn Nhân Viên';
+                inputEmployeRegis.value = '';
+                countClick_e = 0;
+            }
+        }
+        else {
+            countEmployee++;
+            item.classList.add('selected');
+            if (countEmployee == 2) {
+                tags_employee[1].innerHTML += `<span
+                    class="el-tag el-tag--info el-tag--small el-tag--light">
+                    <span class="el-select__tags-text">
+                        +${countEmployee - 1}
+                    </span>
+                </span>`
+            }
+            else if (countEmployee > 2) {
+                const spanCount = document.querySelectorAll('.el-select__tags-text');
+                spanCount[1].textContent = `+${countEmployee - 1}`
+            }
+            else {
+                tags_employee[1].innerHTML = `
+                    <span
+                        class="el-tag el-tag--info el-tag--small el-tag--light">
+                        <span class="el-select__tags-text">
+                            ${span_nameEmployee[index].textContent.trim()}
+                        </span>
+                    </span>`
+            }
+        }
+        successInputCategory(13, '');
+    }
+
+})
+
+inputdateFrom.onfocusout = () => {
+    var datenow = new Date();
+    var dateInputFrom = new Date(`${inputdateFrom.value}`);
+    datenow.setHours(0, 0, 0, 0);
+    dateInputFrom.setHours(0, 0, 0, 0);
+    if (datenow.getTime() > dateInputFrom.getTime()) {
+        errInputCategory(11, 'Bạn vui lòng chọn ngày lớn hơn ngày hiện tại')
+    }
+    else {
+        successInputCategory(11, '');
+    }
+}
+
+var getDaysArray = function (start, end) {
+    for (var arr = [], dt = new Date(start); dt <= new Date(end); dt.setDate(dt.getDate() + 1)) {
+        arr.push(new Date(dt));
+    }
+    return arr;
+};
+
+var arrDateRegis = [];
+var arrEmployeeRegis = [];
+var idStoreRegis;
+
+function pushIdEmployee() {
+    arrEmployeeRegis = [];
+    listDropdown_employee.forEach((item, index) => {
+        if (item.classList.contains('selected')) {
+            arrEmployeeRegis.push(item.getAttribute('data-employee'))
+        }
+    })
+}
+
+
+
+
+function pushDateRegisToArr(daylist) {
+    arrDateRegis = [];
+    for (var i = 0; i < daylist.length; i++) {
+        arrDateRegis.push(`${daylist[i].getFullYear()}-${daylist[i].getMonth() + 1}-${daylist[i].getDate()}`)
+    }
+}
+
+
+
+
+btnConfirmRegis.addEventListener('click', async (e) => {
+    e.preventDefault();
+    var flag = 0;
+    if (inputdateFrom.value == "") {
+        errInputCategory(11, 'Bạn vui lòng chọn ngày bắt đầu')
+    }
+    else {
+        var datenow = new Date();
+        var dateInputFrom = new Date(`${inputdateFrom.value}`);
+        datenow.setHours(0, 0, 0, 0);
+        dateInputFrom.setHours(0, 0, 0, 0);
+        if (datenow.getTime() > dateInputFrom.getTime()) {
+            errInputCategory(11, 'Bạn vui lòng chọn ngày lớn hơn ngày hiện tại')
+        }
+        else {
+            flag = 1;
+            successInputCategory(11, '');
+        }
+    }
+
+    if (inputdateTo.value == "") {
+        errInputCategory(12, 'Bạn vui lòng chọn ngày kết thúc')
+    }
+    else {
+        if (flag == 1) flag = 2
+        successInputCategory(12, '');
+    }
+
+    if (inputEmployeRegis.value == "") {
+        errInputCategory(14, 'Bạn vui lòng chọn nhân viên cần đăng ký ngày làm việc')
+    }
+    else {
+        if (flag == 2) flag = 3
+        successInputCategory(14, '');
+    }
+
+    if (inputStore_Regis.value == "") {
+        errInputCategory(13, 'Bạn vui lòng chọn cửa hàng cần đăng ký')
+    } else {
+        if (flag == 3) flag = 4
+        successInputCategory(13, '');
+    }
+
+    if (flag == 4) {
+        var dateInputFrom = new Date(`${inputdateFrom.value}`);
+        var dateInptutTo = new Date(`${inputdateTo.value}`);
+        var daylist = getDaysArray(dateInputFrom, dateInptutTo);
+        daylist.map((v) => v.toISOString().slice(0, 10)).join("")
+        pushDateRegisToArr(daylist);
+        pushIdEmployee();
+        const { status_haveEmployee } = await checkEmployeeRegis(arrDateRegis, arrEmployeeRegis);
+        if (status_haveEmployee == 'have') {
+            errInputCategory(14, 'Đã có nhân viên đăng ký làm việc trong thời gian này');
+        } else {
+            successInputCategory(14, '');
+            const { status } = await regisShift(arrDateRegis, arrEmployeeRegis, idStoreRegis);
+            if (status == 'success') {
+                $('#add-regisShift').modal('hide');
+                launch_toast('Đăng Ký Làm Việc Thành Công');
+            }
+        }
+    }
+
+
+
+})
+
 window.addEventListener('load', () => {
     renderStatus();
 })
+
+async function checkEmployeeRegis(arrDate, arrEmployee) {
+    return (await instance.post('employee/check-regis-shift', {
+        arrDate,
+        arrEmployee,
+    })).data;
+}
+
+async function regisShift(arrDate, arrEmployee, idStore) {
+    return (await instance.post('employee/regis-shift', {
+        arrDate,
+        arrEmployee,
+        idStore
+    })).data;
+}
 
 async function setStatusEmployee(idEmployee, status) {
     return (await instance.post('employee/set-status', {

@@ -276,6 +276,8 @@ router.post('/employee/edit-employee-withimg', upload.single('file'), async (req
     }
     res.redirect('back');
 })
+router.post('/employee/regis-shift', StaffController.regisShift);
+router.post('/employee/check-regis-shift', StaffController.checkEmployeeRegis);
 router.post('/employee/delete-employee', StaffController.deleteEmployee);
 router.post('/service/info-employee', StaffController.getInfoEmployee_service);
 router.post('/employee/info-employee', StaffController.getInfoEmployee);

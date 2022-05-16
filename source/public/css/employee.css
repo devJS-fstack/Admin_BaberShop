@@ -44,3 +44,7 @@
 .adm-toggle-filters {
   position: relative;
   width: auto; }
+
+.rd-container-attachment {
+  position: fixed !important;
+  z-index: 1500; }
